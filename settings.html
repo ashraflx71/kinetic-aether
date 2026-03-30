@@ -1,30 +1,143 @@
-<div id="status-card" style="background: #000; border: 2px solid #D4AF37; padding: 25px; border-radius: 15px; color: #D4AF37; text-align: center; margin: 20px auto; max-width: 500px; box-shadow: 0 0 15px #D4AF37;">
-    <h2 style="text-transform: uppercase; letter-spacing: 2px;">نظام Kinetic Aether</h2>
-    <hr style="border: 0.5px solid #D4AF37; margin: 15px 0;">
-    <p id="server-msg" style="font-size: 1.1rem;">في انتظار أوامر الـ Commander...</p>
-    
-    <button onclick="fetchData()" style="background: #D4AF37; color: #000; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; border-radius: 5px; transition: 0.3s; margin-top: 10px;">
-        تحديث البيانات من SQLite 🛡️
-    </button>
-</div>
-
-<script>
-async function fetchData() {
-    const msgElement = document.getElementById('server-msg');
-    msgElement.innerText = "جاري الاتصال بالسيرفر المحلي... ⏳";
-    
-    try {
-        // الاتصال بالسيرفر الذي يعمل في Pydroid الآن
-        const response = await fetch('http://localhost:5000/api/data');
-        const data = await response.json();
-        
-        if (data.status === "success") {
-            msgElement.innerHTML = `<span style="color: #00FF00;">تم الاتصال بنجاح! ✅</span><br>البيانات: ${JSON.stringify(data.db_content)}`;
-            console.log("Welcome Commander Ashraf:", data);
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعدادات نظام Kinetic Aether | القائد أشرف</title>
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
+            --text-color: #ffffff;
         }
-    } catch (error) {
-        msgElement.innerHTML = `<span style="color: #FF0000;">فشل الاتصال! ❌</span><br>تأكد أن Pydroid يعمل على http://localhost:5000`;
-        console.error("Connection Error:", error);
-    }
-}
-</script>
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header {
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 { color: var(--gold); font-size: 2rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        .btn-gold {
+            background: linear-gradient(45deg, #D4AF37, #f9f295);
+            color: #000;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            transition: 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .btn-gold:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--gold);
+        }
+
+        #display-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: right;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .project-name { color: var(--gold); font-size: 1.3rem; margin-bottom: 10px; font-weight: bold; }
+        .project-status { color: #00ff00; font-family: 'Courier New', Courier, monospace; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-msg {
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 77, 77, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🛡️ KINETIC AETHER DASHBOARD</h1>
+        <p>نظام الإدارة المركزية - التحكم في قاعدة البيانات المحلية</p>
+    </div>
+
+    <button class="btn-gold" onclick="fetchData()">تحديث البيانات من SQLite 🛡️</button>
+
+    <div id="display-area">
+        <p style="color: #666;">اضغط على الزر أعلاه لمزامنة البيانات مع هاتفك</p>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const displayArea = document.getElementById('display-area');
+            displayArea.innerHTML = "<p style='color: gold;'>جاري فحص الاتصال بالسيرفر المحمول... ⏳</p>";
+
+            // ملاحظة للقائد أشرف: هذا هو الـ IP الخاص بجهازك الحالي
+            const serverUrl = 'http://10.241.108.134:8080/api/data';
+
+            try {
+                const response = await fetch(serverUrl);
+                if (!response.ok) throw new Error('فشل الاستجابة من السيرفر');
+                
+                const result = await response.json();
+                
+                if (result.projects) {
+                    let cardsHtml = `<h2 style="color:white;">مرحباً بك يا ${result.commander}</h2>`;
+                    
+                    result.projects.forEach(project => {
+                        cardsHtml += `
+                            <div class="project-card">
+                                <div class="project-name">🚀 مشروع: ${project.name}</div>
+                                <div class="project-status">📊 الحالة الحالية: ${project.status}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    displayArea.innerHTML = cardsHtml;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                displayArea.innerHTML = `
+                    <div class="error-msg">
+                        <h3>❌ فشل الاتصال بالسيرفر!</h3>
+                        <p>1. تأكد أن تطبيق Pydroid يعمل (الزر الأصفر مثلث).</p>
+                        <p>2. تأكد أن هاتفك متصل بنفس الشبكة.</p>
+                        <p>3. حاول استخدام "متصفح متخفي" لتجنب حظر الأمان.</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+
+</body>
+</html>
