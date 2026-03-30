@@ -1,143 +1,67 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إعدادات نظام Kinetic Aether | القائد أشرف</title>
-    <style>
-        :root {
-            --gold: #D4AF37;
-            --dark-bg: #0a0a0a;
-            --card-bg: #161616;
-            --text-color: #ffffff;
-        }
+import sqlite3
+from flask import Flask, jsonify
+from flask_cors import CORS
 
-        body {
-            background-color: var(--dark-bg);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
+# 1. إعداد التطبيق وتجاوز حماية المتصفح (CORS)
+app = Flask(__name__)
+CORS(app)
 
-        .header {
-            border-bottom: 2px solid var(--gold);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
+# 2. وظيفة إعداد قاعدة البيانات وتحديثها
+def init_database():
+    try:
+        conn = sqlite3.connect('lumina_core.db')
+        cursor = conn.cursor()
+        # إنشاء الجدول إذا لم يكن موجوداً
+        cursor.execute('''CREATE TABLE IF NOT EXISTS projects 
+                          (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                           name TEXT NOT NULL, 
+                           status TEXT NOT NULL)''')
+        
+        # التأكد من وجود بياناتك الخاصة
+        cursor.execute("SELECT count(*) FROM projects")
+        if cursor.fetchone()[0] == 0:
+            projects_data = [
+                ('Creative 2026', 'Ranking #1 🚀'),
+                ('Sherif Pro', 'SEO Optimized ✅'),
+                ('Optimum 2026', 'Indexing... ⏳')
+            ]
+            cursor.executemany("INSERT INTO projects (name, status) VALUES (?, ?)", projects_data)
+            conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Database Error: {e}")
 
-        h1 { color: var(--gold); font-size: 2rem; text-transform: uppercase; letter-spacing: 2px; }
+# 3. الصفحة الرئيسية للتأكد من أن السيرفر "حي"
+@app.route('/')
+def home():
+    return """
+    <body style='background: #000; color: gold; text-align: center; padding-top: 100px; font-family: sans-serif;'>
+        <h1 style='border: 2px solid gold; display: inline-block; padding: 20px;'>🛡️ KINETIC AETHER: ONLINE</h1>
+        <p>Commander: Ashraf Hassan</p>
+        <p>Status: Ready to Sync</p>
+    </body>
+    """
 
-        .btn-gold {
-            background: linear-gradient(45deg, #D4AF37, #f9f295);
-            color: #000;
-            border: none;
-            padding: 15px 35px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            transition: 0.3s;
-            margin-bottom: 30px;
-        }
+# 4. الرابط البرمجي (API) لإرسال البيانات لـ GitHub
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    try:
+        conn = sqlite3.connect('lumina_core.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, status FROM projects")
+        rows = cursor.fetchall()
+        conn.close()
+        
+        return jsonify({
+            "commander": "Ashraf Hassan",
+            "system": "Kinetic Aether",
+            "data": [{"name": r[0], "status": r[1]} for r in rows]
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-        .btn-gold:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px var(--gold);
-        }
-
-        #display-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .project-card {
-            background: var(--card-bg);
-            border: 1px solid var(--gold);
-            border-radius: 15px;
-            padding: 20px;
-            width: 90%;
-            max-width: 500px;
-            text-align: right;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        .project-name { color: var(--gold); font-size: 1.3rem; margin-bottom: 10px; font-weight: bold; }
-        .project-status { color: #00ff00; font-family: 'Courier New', Courier, monospace; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .error-msg {
-            color: #ff4d4d;
-            border: 1px solid #ff4d4d;
-            padding: 15px;
-            border-radius: 10px;
-            background: rgba(255, 77, 77, 0.1);
-        }
-    </style>
-</head>
-<body>
-
-    <div class="header">
-        <h1>🛡️ KINETIC AETHER DASHBOARD</h1>
-        <p>نظام الإدارة المركزية - التحكم في قاعدة البيانات المحلية</p>
-    </div>
-
-    <button class="btn-gold" onclick="fetchData()">تحديث البيانات من SQLite 🛡️</button>
-
-    <div id="display-area">
-        <p style="color: #666;">اضغط على الزر أعلاه لمزامنة البيانات مع هاتفك</p>
-    </div>
-
-    <script>
-        async function fetchData() {
-            const displayArea = document.getElementById('display-area');
-            displayArea.innerHTML = "<p style='color: gold;'>جاري فحص الاتصال بالسيرفر المحمول... ⏳</p>";
-
-            // ملاحظة للقائد أشرف: هذا هو الـ IP الخاص بجهازك الحالي
-            const serverUrl = 'http://10.241.108.134:8080/api/data';
-
-            try {
-                const response = await fetch(serverUrl);
-                if (!response.ok) throw new Error('فشل الاستجابة من السيرفر');
-                
-                const result = await response.json();
-                
-                if (result.projects) {
-                    let cardsHtml = `<h2 style="color:white;">مرحباً بك يا ${result.commander}</h2>`;
-                    
-                    result.projects.forEach(project => {
-                        cardsHtml += `
-                            <div class="project-card">
-                                <div class="project-name">🚀 مشروع: ${project.name}</div>
-                                <div class="project-status">📊 الحالة الحالية: ${project.status}</div>
-                            </div>
-                        `;
-                    });
-                    
-                    displayArea.innerHTML = cardsHtml;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                displayArea.innerHTML = `
-                    <div class="error-msg">
-                        <h3>❌ فشل الاتصال بالسيرفر!</h3>
-                        <p>1. تأكد أن تطبيق Pydroid يعمل (الزر الأصفر مثلث).</p>
-                        <p>2. تأكد أن هاتفك متصل بنفس الشبكة.</p>
-                        <p>3. حاول استخدام "متصفح متخفي" لتجنب حظر الأمان.</p>
-                    </div>
-                `;
-            }
-        }
-    </script>
-
-</body>
-</html>
+# 5. تشغيل المحرك على المنفذ 5000 (أو 8080 إذا فضلته)
+if __name__ == '__main__':
+    init_database()
+    print("--- نظام Kinetic Aether جاهز للاستقبال يا قائد أشرف ---")
+    app.run(host='0.0.0.0', port=5000, debug=False)
