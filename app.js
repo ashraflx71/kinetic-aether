@@ -1,91 +1,36 @@
-/**
- * Kinetic Aether Core Engine v2.4.0
- * Centralized Logic for Home, Lab, and Settings
- * Created by: Ashraf Hassan
- */
+// --- إضافة وحدة الـ LSI داخل initLabModule ---
+window.generateLSI = () => {
+    const keyword = document.getElementById('keyword-input').value;
+    const loader = document.getElementById('lsi-loader');
+    const results = document.getElementById('lsi-results');
 
-const AetherCore = {
-    // 1. إعدادات النظام العامة
-    init() {
-        console.log("%c🌌 Kinetic Aether System Online", "color: #ba9eff; font-weight: bold; font-size: 1.2rem;");
-        this.setupNavigation();
-        this.detectPage();
-    },
+    if (!keyword) return alert("يا أشرف، نحتاج لكلمة مفتاحية لنبدأ!");
 
-    // 2. التعرف على الصفحة الحالية وتفعيل أدواتها
-    detectPage() {
-        const path = window.location.pathname;
-        if (path.includes('lab.html')) {
-            this.initLabModule();
-        } else if (path.includes('settings.html')) {
-            this.initSettingsModule();
-        }
-    },
+    loader.style.display = 'block';
+    results.classList.add('hidden');
+    results.innerHTML = '';
 
-    // 3. وحدة المختبر (The Lab Module)
-    initLabModule() {
-        console.log("[SYSTEM]: Lab Module Activated.");
-        window.runSEO = () => {
-            const urlInput = document.getElementById('seo-url');
-            const btnText = document.getElementById('seo-btn-text');
-            const loader = document.getElementById('seo-loader');
-            const resultDiv = document.getElementById('seo-result');
+    setTimeout(() => {
+        loader.style.display = 'none';
+        results.classList.remove('hidden');
+        
+        // محاكاة استخراج الكلمات الدلالية المرتبطة بذكاء
+        const suggestions = [
+            `${keyword} رخيصة`, 
+            `أفضل ${keyword} في الإسكندرية`, 
+            `مميزات ${keyword}`, 
+            `خطوات ${keyword} ناجحة`,
+            `تقييمات ${keyword}`,
+            `${keyword} 2026`
+        ];
 
-            if (!urlInput.value) return alert("يا أشرف، يرجى إدخال الرابط أولاً!");
-
-            loader.style.display = 'block';
-            btnText.innerText = "جاري استدعاء الأثير...";
-            
-            setTimeout(() => {
-                loader.style.display = 'none';
-                btnText.innerText = "تم التحليل ✅";
-                resultDiv.classList.remove('hidden');
-                resultDiv.innerHTML = `
-                    <div class="p-4 border-r-4 border-secondary bg-secondary/5">
-                        <p class="font-bold text-secondary mb-1">تقرير السيو لـ ${urlInput.value}</p>
-                        <ul class="text-xs space-y-1 opacity-80">
-                            <li>• الأداء الحركي: 98%</li>
-                            <li>• الكود الأخضر: متوافق</li>
-                            <li>• التجاوب: مثالي (Mobile-First)</li>
-                        </ul>
-                    </div>`;
-            }, 1500);
-        };
-
-        window.purifyCode = () => {
-            const input = document.getElementById('code-input').value;
-            if (!input) return alert("ألصق الكود لتنقيته!");
-            
-            // خوارزمية ضغط الأكواد (Minification)
-            const purified = input
-                .replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '') 
-                .replace(/\s+/g, ' ')
-                .replace(/\s*([\{\};:,])\s*/g, '$1')
-                .trim();
-            
-            document.getElementById('code-output').value = purified;
-            notify("تم ضغط الكود بنجاح! كود أخضر، أداء أسرع.");
-        };
-    },
-
-    // 4. وحدة الإعدادات (Settings Module)
-    initSettingsModule() {
-        console.log("[SYSTEM]: Settings Module Activated.");
-        // هنا يمكن إضافة وظائف حفظ الإعدادات في LocalStorage لاحقاً
-    },
-
-    // 5. إدارة التنقل والتفاعلات البسيطة
-    setupNavigation() {
-        const notify = (msg) => {
-            console.log(`[NOTIFICATION]: ${msg}`);
-        };
-    }
+        suggestions.forEach(word => {
+            const span = document.createElement('span');
+            span.className = "bg-secondary/10 text-secondary text-[10px] p-2 rounded-lg border border-secondary/20 text-center";
+            span.innerText = word;
+            results.appendChild(span);
+        });
+        
+        notify("تم استخراج أقوى الكلمات الدلالية لمقالاتك!");
+    }, 1200);
 };
-
-// تشغيل المحرك عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', () => AetherCore.init());
-
-// دالة التنبيهات السريعة
-function notify(message) {
-    alert(`💡 نظام الأثير: ${message}`);
-}
