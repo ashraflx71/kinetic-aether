@@ -1,34 +1,54 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="dark">
-<head><link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ba9eff">
-
-    <meta charset="UTF-8">
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kinetic Aether | Digital Alchemy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Manrope:wght@400;700&display=swap" rel="stylesheet">
-</head><link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ba9eff">
+    <title>Kinetic Aether | Digital Alchemy</title>
+    <style>
+        body { background: radial-gradient(circle at top, #1a1a2e 0%, #000 100%); color: #ffd700; font-family: sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .royal-border { border: 2px solid #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
+        .btn-gold { background: #ffd700; color: #000; font-weight: 900; transition: 0.3s; }
+        .btn-gold:hover { background: #fff; transform: scale(1.05); }
+    </style>
+</head>
+<body class="p-6">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4 text-white uppercase">KINETIC <span class="text-[#ffd700]">AETHER</span></h1>
+        <p class="text-sm tracking-[0.3em] text-blue-400 font-bold uppercase">مركز القيادة الرقمي | أشرف حسن</p>
+    </div>
 
-<body class="bg-background text-on-surface">
-    <nav class="nav-glass fixed top-0 w-full z-50 p-6 flex justify-between items-center">
-        <div class="logo font-headline font-black text-primary tracking-tighter">KINETIC AETHER</div>
-        <div class="links hidden md:flex gap-6 font-bold text-xs uppercase">
-            <a href="index.html" class="text-secondary">الرئيسية</a>
-            <a href="settings.html" class="hover:text-primary transition">النظام</a>
+    <div class="royal-border p-8 rounded-[2rem] bg-black/50 backdrop-blur-xl max-w-md w-full text-center">
+        <h2 class="text-2xl font-bold mb-6">اتصال السيرفر المحلي</h2>
+        <p class="text-xs text-gray-400 mb-6 leading-relaxed">أدخل رابط نفق Termux النشط حالياً للوصول إلى قاعدة بيانات المشاريع.</p>
+        
+        <input type="text" id="serverUrl" placeholder="https://xxxx.lhr.life" 
+               class="w-full bg-black border border-yellow-500/30 p-4 rounded-xl text-white text-center mb-4 focus:border-blue-500 outline-none">
+        
+        <button onclick="connectServer()" class="btn-gold w-full py-4 rounded-xl mb-4">دخول النظام 🛡️</button>
+        
+        <div class="flex justify-center gap-4 text-[10px] opacity-50">
+            <span>Pydroid 3: Online</span>
+            <span>Termux: Connected</span>
         </div>
-    </nav>
+    </div>
 
-    <main class="hero-section pt-40 px-6 text-center">
-        <h1 class="text-6xl md:text-8xl font-headline font-black mb-6">الخيمياء <span class="text-gradient">الرقمية</span></h1>
-        <p class="max-w-2xl mx-auto text-lg opacity-80 mb-10">مرحباً بك في Kinetic Aether. نظامك المتكامل للإدارة، التوليد، والتشفير الفائق.</p>
-        <div class="flex flex-wrap justify-center gap-4">
-            <a href="settings.html" class="btn-primary px-12 py-4 rounded-full font-bold">دخول النظام</a>
-        </div>
-    </main>
+    <script>
+        function connectServer() {
+            let url = document.getElementById('serverUrl').value;
+            if(!url) { alert("من فضلك أدخل رابط Termux أولاً يا قائد!"); return; }
+            if(!url.startsWith('http')) url = 'https://' + url;
+            
+            // حفظ الرابط في الذاكرة لسهولة الدخول لاحقاً
+            localStorage.setItem('ashraf_server', url);
+            window.location.href = url;
+        }
 
-    <script src="app.js"></script>
+        // محاولة جلب الرابط المخزن تلقائياً
+        window.onload = function() {
+            const saved = localStorage.getItem('ashraf_server');
+            if(saved) document.getElementById('serverUrl').value = saved;
+        }
+    </script>
 </body>
 </html>
