@@ -1,1 +1,25 @@
+<script>
+    // تحديث الإحصائيات (محاكاة)
+    const refreshBtn = document.querySelector('button:has(span:contains("تحديث الإحصائيات"))');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            alert('تم تحديث الإحصائيات بنجاح!');
+            // يمكنك هنا إضافة كود لجلب بيانات جديدة من API
+        });
+    }
 
+    // مشاركة التقارير
+    const shareReportBtn = document.querySelector('button:has(span:contains("مشاركة التقارير"))');
+    if (shareReportBtn) {
+        shareReportBtn.addEventListener('click', () => {
+            alert('تم إنشاء رابط تقرير الإحصائيات!');
+        });
+    }
+
+    // إصلاح روابط التنقل في الشريط السفلي
+    document.querySelectorAll('nav.fixed.bottom-0 div').forEach((item, index) => {
+        const spanText = item.querySelector('span')?.innerText.toLowerCase() || '';
+        if (spanText.includes('library')) item.addEventListener('click', () => window.location.href = 'videos.html');
+        else if (spanText.includes('analytics')) item.addEventListener('click', () => window.location.href = 'stats.html');
+        else if (spanText.includes('shared')) item.addEventListener('click', () => window.location.href = 'share.html');
+        else if (spanText.includes('settings')) item.addEventListener('click', () => window.location.h
